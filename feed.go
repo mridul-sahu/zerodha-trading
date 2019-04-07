@@ -8,11 +8,12 @@ import (
 )
 
 type Bar struct {
-	Datetime time.Time
-	Open     float64
-	High     float64
-	Low      float64
-	Close    float64
+	Instrument uint32
+	Datetime   time.Time
+	Open       float64
+	High       float64
+	Low        float64
+	Close      float64
 }
 
 type Bars struct {
@@ -24,27 +25,27 @@ type Bars struct {
 	closes     []float64
 }
 
-func (b *Bars) getDates() []time.Time {
+func (b *Bars) GetDates() []time.Time {
 	return b.dates
 }
 
-func (b *Bars) getOpenSeries() []float64 {
+func (b *Bars) GetOpenSeries() []float64 {
 	return b.opens
 }
 
-func (b *Bars) getHighSeries() []float64 {
+func (b *Bars) GetHighSeries() []float64 {
 	return b.highs
 }
 
-func (b *Bars) getLowSeries() []float64 {
+func (b *Bars) GetLowSeries() []float64 {
 	return b.lows
 }
 
-func (b *Bars) getCloseSeries() []float64 {
+func (b *Bars) GetCloseSeries() []float64 {
 	return b.closes
 }
 
-func (b *Bars) size() int {
+func (b *Bars) Len() int {
 	return len(b.dates)
 }
 
@@ -57,7 +58,7 @@ func (b *Bars) AddBar(bar *Bar) {
 }
 
 func (b *Bars) AddBars(bars []*Bar) {
-	n := b.size()
+	n := b.Len()
 
 	dates := make([]time.Time, n, len(bars)+n)
 	opens := make([]float64, n, len(bars)+n)
@@ -103,14 +104,19 @@ func NewFeed(instruments []uint32) *Feed {
 	return &f
 }
 
+func (f *Feed) GetBars(instrument uint32) *Bars {
+	return f.data[instrument]
+}
+
 func (f *Feed) onTick(tick kiteticker.Tick) {
 	ohlc := tick.OHLC
 	bar := Bar{
-		Open:     ohlc.Open,
-		Close:    ohlc.Close,
-		High:     ohlc.High,
-		Low:      ohlc.Low,
-		Datetime: tick.Timestamp.Time,
+		Open:       ohlc.Open,
+		Close:      ohlc.Close,
+		High:       ohlc.High,
+		Low:        ohlc.Low,
+		Datetime:   tick.Timestamp.Time,
+		Instrument: tick.InstrumentToken,
 	}
 	f.data[tick.InstrumentToken].AddBar(&bar)
 
