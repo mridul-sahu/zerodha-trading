@@ -108,3 +108,34 @@ func (c *Controller) OnBar(b *Bar) {
 		c.position = nil
 	}
 }
+
+func (c *Controller) End() {
+	if c.position != nil {
+		log.Print("Exiting")
+		if c.position.Type() == BOUGHT {
+			c.broker.PlaceOrder(kt.VarietyRegular, kt.OrderParams{
+				Exchange:        c.instrument.Exchange,
+				Tradingsymbol:   c.instrument.Tradingsymbol,
+				TransactionType: kt.TransactionTypeSell,
+				OrderType:       kt.OrderTypeMarket,
+				Product:         kt.ProductMIS,
+				Validity:        kt.ValidityIOC,
+				Quantity:        c.position.Shares(),
+			})
+			log.Print("Exit Bought")
+			c.position = nil
+		} else if c.position.Type() == BORROWED {
+			c.broker.PlaceOrder(kt.VarietyRegular, kt.OrderParams{
+				Exchange:        c.instrument.Exchange,
+				Tradingsymbol:   c.instrument.Tradingsymbol,
+				TransactionType: kt.TransactionTypeBuy,
+				OrderType:       kt.OrderTypeMarket,
+				Product:         kt.ProductMIS,
+				Validity:        kt.ValidityIOC,
+				Quantity:        c.position.Shares(),
+			})
+			log.Print("Exit Borrowed")
+			c.position = nil
+		}
+	}
+}

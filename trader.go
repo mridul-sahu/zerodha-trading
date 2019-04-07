@@ -1,6 +1,8 @@
 package trader
 
 import (
+	"log"
+
 	kt "github.com/zerodhatech/gokiteconnect"
 )
 
@@ -8,6 +10,7 @@ type PaperTrader struct {
 	feed        *Feed
 	broker      Broker
 	controllers map[uint32]*Controller
+	stop        chan bool
 }
 
 func NewPaperTrader(instruments kt.Instruments, broker Broker, feed *Feed) *PaperTrader {
@@ -28,6 +31,8 @@ func (t *PaperTrader) StartTrading() {
 			select {
 			case b := <-t.feed.OnBar:
 				t.OnBar(b)
+			case <-t.stop:
+				return
 			}
 		}
 	}()
@@ -35,4 +40,12 @@ func (t *PaperTrader) StartTrading() {
 
 func (t *PaperTrader) OnBar(b *Bar) {
 	t.controllers[b.Instrument].OnBar(b)
+}
+
+func (t *PaperTrader) End() {
+	t.stop <- true
+	for k := range t.controllers {
+		t.controllers[k].End()
+	}
+	log.Print("Stopped")
 }

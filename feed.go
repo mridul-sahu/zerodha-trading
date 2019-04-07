@@ -27,7 +27,7 @@ func (f *Feed) GetBars(instrument uint32) *Bars {
 	return f.data[instrument]
 }
 
-func (f *Feed) onTick(tick kiteticker.Tick) {
+func (f *Feed) OnTick(tick kiteticker.Tick) {
 	ohlc := tick.OHLC
 	bar := Bar{
 		Open:       ohlc.Open,
