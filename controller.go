@@ -2,6 +2,7 @@ package trader
 
 import (
 	"log"
+	"math"
 
 	kt "github.com/zerodhatech/gokiteconnect"
 )
@@ -30,16 +31,19 @@ func (c *Controller) getFunds() float64 {
 func (c *Controller) OnBar(b *Bar) {
 
 	// Check Stoploss
-	if c.position != nil && c.position.StoplossHit(b) {
-		if c.position.Type() == BOUGHT {
-			// EXIT BOUGHT
-			log.Print("Exit Bought")
-			c.position = nil
-		} else if c.position.Type() == BORROWED {
-			// EXIT BORROWED
-			log.Print("Exit Borrowed")
-			c.position = nil
+	if c.position != nil {
+		if c.position.StoplossHit(b) {
+			if c.position.Type() == BOUGHT {
+				c.broker.Sell(c.instrument, b.Close, c.position.Shares())
+				log.Print("Exit Bought")
+				c.position = nil
+			} else if c.position.Type() == BORROWED {
+				c.broker.Buy(c.instrument, b.Close, c.position.Shares())
+				log.Print("Exit Borrowed")
+				c.position = nil
+			}
 		}
+		c.position.StoplossPrice = math.Max(c.position.StoplossPrice, b.Close*0.95)
 	}
 
 	signal := c.strategy.OnBar(b)
@@ -48,47 +52,59 @@ func (c *Controller) OnBar(b *Bar) {
 		log.Print("Hold")
 	case BUY:
 		if (c.position != nil) && (c.position.Type() == BORROWED) {
-			// EXIT BORROWED
+			c.broker.Buy(c.instrument, b.Close, c.position.Shares())
 			log.Print("Exit Borrowed")
 			c.position = nil
 		}
 		if c.position == nil {
 			shares := int(c.getFunds() / b.Close)
-			// BUY SHARES
-			log.Print("Buy Shares")
-			c.position = NewPosition(BOUGHT, shares, 0.95*b.Close)
+			if shares > 0 {
+				c.broker.Buy(c.instrument, b.Close, shares)
+				log.Print("Buy Shares")
+				c.position = NewPosition(BOUGHT, shares, 0.95*b.Close)
+			}
 		} else {
-			//TODO: (Maybe Buy More)
+			shares := int(c.getFunds()/b.Close) - c.position.Shares()
+			if shares > 0 {
+				c.broker.Buy(c.instrument, b.Close, shares)
+				log.Print("Bought More")
+				c.position.AddShares(shares)
+			}
 		}
 	case SELL:
 		if (c.position == nil) || (c.position.Type() == BORROWED) {
 			return
 		}
-		// EXIT BOUGHT
+		c.broker.Sell(c.instrument, b.Close, c.position.Shares())
 		log.Print("Exit Bought")
 		c.position = nil
 	case SHORT:
 		if (c.position != nil) && (c.position.Type() == BOUGHT) {
-			// EXIT BOUGHT
+			c.broker.Sell(c.instrument, b.Close, c.position.Shares())
 			log.Print("Exit Bought")
 			c.position = nil
 		}
 		if c.position == nil {
 			shares := int(c.getFunds() / b.Close)
-			// Bowrrow SHARES
-			log.Print("Borrow Shares")
-			c.position = NewPosition(BORROWED, shares, 1.05*b.Close)
+			if shares > 0 {
+				c.broker.Sell(c.instrument, b.Close, shares)
+				log.Print("Borrow Shares")
+				c.position = NewPosition(BORROWED, shares, 1.05*b.Close)
+			}
 		} else {
-			//TODO: (Maybe Borrow More)
+			shares := int(c.getFunds()/b.Close) - c.position.Shares()
+			if shares > 0 {
+				c.broker.Sell(c.instrument, b.Close, shares)
+				log.Print("Borrowed More")
+				c.position.AddShares(shares)
+			}
 		}
 	case COVER:
 		if (c.position == nil) || (c.position.Type() == BOUGHT) {
 			return
 		}
-		// EXIT BORROWED
+		c.broker.Buy(c.instrument, b.Close, c.position.Shares())
 		log.Print("Exit Borrowed")
 		c.position = nil
 	}
-
-	// MAYBE UPDATE STOPLOSS
 }

@@ -8,6 +8,8 @@ import (
 
 type Broker interface {
 	PlaceOrder(variety string, orderParams kt.OrderParams) (string, error)
+	Buy(inst *kt.Instrument, price float64, qunatity int) (string, error)
+	Sell(inst *kt.Instrument, price float64, qunatity int) (string, error)
 	GetAvailableFunds() float64
 }
 
@@ -25,7 +27,7 @@ func (pb *PaperBroker) PlaceOrder(variety string, orderParams kt.OrderParams) (s
 	return strconv.Itoa(len(pb.orders)), nil
 }
 
-func (pb *PaperBroker) Buy(inst kt.Instrument, price float64, qunatity int) (string, error) {
+func (pb *PaperBroker) Buy(inst *kt.Instrument, price float64, qunatity int) (string, error) {
 	return pb.PlaceOrder(kt.VarietyRegular, kt.OrderParams{
 		Exchange:        inst.Exchange,
 		Tradingsymbol:   inst.Tradingsymbol,
@@ -38,7 +40,7 @@ func (pb *PaperBroker) Buy(inst kt.Instrument, price float64, qunatity int) (str
 	})
 }
 
-func (pb *PaperBroker) Sell(inst kt.Instrument, price float64, qunatity int) (string, error) {
+func (pb *PaperBroker) Sell(inst *kt.Instrument, price float64, qunatity int) (string, error) {
 	return pb.PlaceOrder(kt.VarietyRegular, kt.OrderParams{
 		Exchange:        inst.Exchange,
 		Tradingsymbol:   inst.Tradingsymbol,
