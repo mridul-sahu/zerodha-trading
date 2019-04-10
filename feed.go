@@ -31,7 +31,7 @@ func (f *Feed) OnTick(tick kiteticker.Tick) {
 	ohlc := tick.OHLC
 	bar := Bar{
 		Open:       ohlc.Open,
-		Close:      ohlc.Close,
+		Close:      tick.LastPrice,
 		High:       ohlc.High,
 		Low:        ohlc.Low,
 		Datetime:   tick.Timestamp.Time,
