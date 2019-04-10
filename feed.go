@@ -31,12 +31,11 @@ func (f *Feed) GetBars(instrument uint32) *Bars {
 func (f *Feed) OnTick(tick kiteticker.Tick) {
 	ohlc := tick.OHLC
 	bar := Bar{
-		Open:       ohlc.Open,
-		Close:      tick.LastPrice,
-		High:       ohlc.High,
-		Low:        ohlc.Low,
-		Datetime:   tick.Timestamp.Time,
-		Instrument: tick.InstrumentToken,
+		Open:     ohlc.Open,
+		Close:    tick.LastPrice,
+		High:     ohlc.High,
+		Low:      ohlc.Low,
+		Datetime: tick.Timestamp.Time,
 	}
 	f.data[tick.InstrumentToken].AddBar(&bar)
 	select {

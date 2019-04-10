@@ -3,12 +3,11 @@ package trader
 import "time"
 
 type Bar struct {
-	Instrument uint32
-	Datetime   time.Time
-	Open       float64
-	High       float64
-	Low        float64
-	Close      float64
+	Datetime time.Time
+	Open     float64
+	High     float64
+	Low      float64
+	Close    float64
 }
 
 type Bars struct {
