@@ -18,6 +18,7 @@ func NewFeed(instruments []uint32) *Feed {
 
 	for _, inst := range instruments {
 		f.data[inst] = &Bars{Instrument: inst}
+		f.OnBar[inst] = make(chan *Bar)
 	}
 
 	return &f
