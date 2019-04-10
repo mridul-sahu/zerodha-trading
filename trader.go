@@ -27,21 +27,19 @@ func NewPaperTrader(instruments kt.Instruments, broker Broker, feed *Feed) *Pape
 }
 
 func (t *PaperTrader) StartTrading() {
-	go func() {
-		for {
-			select {
-			case b := <-t.feed.OnBar:
-				t.OnBar(b)
-			case <-t.stop:
-				log.Println("Stopped")
-				return
+	for k := range t.controllers {
+		go func(id uint32, c *Controller, b <-chan *Bar) {
+			for {
+				select {
+				case bar := <-b:
+					c.OnBar(bar)
+				case <-t.stop:
+					log.Println("Stopped")
+					return
+				}
 			}
-		}
-	}()
-}
-
-func (t *PaperTrader) OnBar(b *Bar) {
-	t.controllers[b.Instrument].OnBar(b)
+		}(k, t.controllers[k], t.feed.OnBar[k])
+	}
 }
 
 func (t *PaperTrader) End() {
