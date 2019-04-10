@@ -1,6 +1,9 @@
 package trader
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
 	"strconv"
 	"time"
 
@@ -63,4 +66,13 @@ func (pb *PaperBroker) Sell(inst *kt.Instrument, price float64, qunatity int) (s
 
 func (pb *PaperBroker) GetAvailableFunds() float64 {
 	return pb.funds
+}
+
+func (pb *PaperBroker) SaveOrdersToFile(filename string) error {
+	if orders, err := json.Marshal(pb.GetOrders()); err == nil {
+		if err := ioutil.WriteFile(filename, orders, os.ModePerm); err != nil {
+			return err
+		}
+	}
+	return nil
 }

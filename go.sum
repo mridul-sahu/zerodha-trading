@@ -6,5 +6,4 @@ github.com/gorilla/websocket v1.4.0 h1:WDFjx/TMzVgy9VdMMQi2K2Emtwi2QcUQsztZ/zLaH
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/zerodhatech/gokiteconnect v0.0.0-20190402061139-d93140e589e1 h1:XBVIiF4tCemP/y/W1Q3Ca5AxbgXY7LWNHnCaOZ8Tk90=
 github.com/zerodhatech/gokiteconnect v0.0.0-20190402061139-d93140e589e1/go.mod h1:bXbyB0ISUi+ffqcW+s4MnZO0UiUYSCoRT9BgjmntdQE=
-gopkg.in/jarcoal/httpmock.v1 v1.0.0-20180719183105-8007e27cdb32 h1:30DLrQoRqdUHslVMzxuKUnY4GKJGk1/FJtKy3yx4TKE=
 gopkg.in/jarcoal/httpmock.v1 v1.0.0-20180719183105-8007e27cdb32/go.mod h1:d3R+NllX3X5e0zlG1Rful3uLvsGC/Q3OHut5464DEQw=

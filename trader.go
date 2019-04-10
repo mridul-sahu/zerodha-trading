@@ -22,6 +22,7 @@ func NewPaperTrader(instruments kt.Instruments, broker Broker, feed *Feed) *Pape
 		p.controllers[id] = NewController(&instruments[i], feed.GetBars(id), broker)
 	}
 	p.feed = feed
+	p.stop = make(chan bool)
 	return &p
 }
 
@@ -32,6 +33,7 @@ func (t *PaperTrader) StartTrading() {
 			case b := <-t.feed.OnBar:
 				t.OnBar(b)
 			case <-t.stop:
+				log.Println("Stopped")
 				return
 			}
 		}
@@ -43,9 +45,9 @@ func (t *PaperTrader) OnBar(b *Bar) {
 }
 
 func (t *PaperTrader) End() {
+	log.Print("Stopping")
 	t.stop <- true
 	for k := range t.controllers {
 		t.controllers[k].End()
 	}
-	log.Print("Stopped")
 }

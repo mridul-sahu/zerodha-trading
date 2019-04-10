@@ -25,6 +25,6 @@ func NewStrategy(bars *Bars) *Strategy {
 }
 
 func (s *Strategy) OnBar(b *Bar) Signal {
-	log.Printf("%v", b)
+	log.Println(s.bars.Instrument, s.bars.Len())
 	return HOLD
 }

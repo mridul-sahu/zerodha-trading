@@ -1,63 +1,58 @@
 package main
 
 import (
-	"encoding/json"
+	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"time"
-
-	"github.com/gocarina/gocsv"
 
 	trader "github.com/mridul-sahu/zerodha-trading"
 	kt "github.com/zerodhatech/gokiteconnect"
 	ktick "github.com/zerodhatech/gokiteconnect/ticker"
 )
 
-const (
-	apiKey    string = "my_api_key"
-	apiSecret string = "my_api_secret"
-)
-
-func writeInstruments(instruments kt.Instruments, filename string) {
-	instumentsFile, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		log.Fatalf("Cannot open/create file (%s): %v", filename, err)
-	}
-	defer instumentsFile.Close()
-
-	if err := gocsv.MarshalFile(instruments, instumentsFile); err != nil {
-		log.Fatalf("Cannot write instruments to file: %v", err)
-	}
-}
-
 func main() {
-	kc := kt.New(apiKey)
+	apiKey := flag.String("key", "", "API KEY")
+	apiSecret := flag.String("secret", "", "API SECRET")
+	flag.Parse()
+
+	if *apiKey == "" || *apiSecret == "" {
+		log.Fatalln("Could not find a vaid api key or secret")
+	}
+
+	kc := kt.New(*apiKey)
 	fmt.Println(kc.GetLoginURL())
 	var requestToken string
 
 	fmt.Println("Please Enter Request Token")
 	fmt.Scan(&requestToken)
-	data, err := kc.GenerateSession(requestToken, apiSecret)
+	data, err := kc.GenerateSession(requestToken, *apiSecret)
 	if err != nil {
 		log.Fatalf("Cannot generate session: %v", err)
 	}
 	kc.SetAccessToken(data.AccessToken)
-	ticker := ktick.New(apiKey, data.AccessToken)
+	ticker := ktick.New(*apiKey, data.AccessToken)
 
 	instruments, err := kc.GetInstruments()
 	if err != nil {
 		log.Fatalf("Cannot get Instruemnts: %v", err)
 	}
 
-	writeInstruments(instruments, "instruments.csv")
+	ids := []uint32{7712001, 738561, 7670273, 2748929, 969473, 2912513, 470529, 408065, 3693569, 177665,
+		424961, 2730497, 3771393, 340481, 1510401, 2977281, 112129, 4451329, 1213441, 3491073}
 
-	var ids []uint32
+	var instToProcess kt.Instruments
 
-	for _, inst := range instruments {
-		ids = append(ids, uint32(inst.InstrumentToken))
+	for i := range instruments {
+		id := uint32(instruments[i].InstrumentToken)
+		for _, b := range ids {
+			if b == id {
+				instToProcess = append(instToProcess, instruments[i])
+				break
+			}
+		}
 	}
+
 	feed := trader.NewFeed(ids)
 	broker := trader.NewPaperBroker(10000)
 
@@ -70,6 +65,7 @@ func main() {
 		if err := ticker.Subscribe(ids); err != nil {
 			fmt.Println("Suscribe Error: ", err)
 		}
+		ticker.SetMode(ktick.ModeFull, ids)
 	})
 
 	ticker.OnReconnect(func(attempt int, delay time.Duration) {
@@ -87,7 +83,7 @@ func main() {
 		fmt.Println("Close: ", code, reason)
 	})
 
-	trader := trader.NewPaperTrader(instruments, broker, feed)
+	trader := trader.NewPaperTrader(instToProcess, broker, feed)
 	trader.StartTrading()
 
 	go func() {
@@ -96,17 +92,16 @@ func main() {
 
 	var command string
 	for {
-		fmt.Println("Want to quit? (Yes/No)")
 		fmt.Scan(&command)
-		if command == "Yes" {
+		if command == "Stop" {
 			ticker.Unsubscribe(ids)
 			trader.End()
-			if orders, err := json.Marshal(broker.GetOrders()); err == nil {
-				if err := ioutil.WriteFile("Orders.josn", orders, os.ModePerm); err != nil {
-					fmt.Println("Error writing orders: ", err)
-				}
-			}
+			broker.SaveOrdersToFile("Orders.json")
 			return
+		} else if command == "Save" {
+			broker.SaveOrdersToFile("Orders.json")
+		} else {
+			log.Println("Unknown Command: ", command)
 		}
 	}
 }

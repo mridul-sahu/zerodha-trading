@@ -38,7 +38,6 @@ func (f *Feed) OnTick(tick kiteticker.Tick) {
 		Instrument: tick.InstrumentToken,
 	}
 	f.data[tick.InstrumentToken].AddBar(&bar)
-
 	select {
 	case f.OnBar <- &bar:
 	default:
