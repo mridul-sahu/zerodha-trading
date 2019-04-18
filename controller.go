@@ -10,15 +10,15 @@ import (
 type Controller struct {
 	instrument *kt.Instrument
 	position   *Position
-	strategy   *Strategy
+	strategy   Strategy
 	broker     Broker
 }
 
-func NewController(inst *kt.Instrument, bars *Bars, broker Broker) *Controller {
+func NewController(inst *kt.Instrument, bars *Bars, broker Broker, sb StrategyBuilder) *Controller {
 	return &Controller{
 		instrument: inst,
 		position:   nil,
-		strategy:   NewStrategy(bars),
+		strategy:   sb(bars),
 		broker:     broker,
 	}
 }
@@ -138,4 +138,5 @@ func (c *Controller) End() {
 			c.position = nil
 		}
 	}
+	c.strategy.End()
 }

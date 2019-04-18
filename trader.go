@@ -13,13 +13,13 @@ type PaperTrader struct {
 	stop        chan bool
 }
 
-func NewPaperTrader(instruments kt.Instruments, broker Broker, feed *Feed) *PaperTrader {
+func NewPaperTrader(instruments kt.Instruments, broker Broker, feed *Feed, sb StrategyBuilder) *PaperTrader {
 	p := PaperTrader{}
 	p.controllers = make(map[uint32]*Controller)
 	p.broker = broker
 	for i := range instruments {
 		id := uint32(instruments[i].InstrumentToken)
-		p.controllers[id] = NewController(&instruments[i], feed.GetBars(id), broker)
+		p.controllers[id] = NewController(&instruments[i], feed.GetBars(id), broker, sb)
 	}
 	p.feed = feed
 	p.stop = make(chan bool)

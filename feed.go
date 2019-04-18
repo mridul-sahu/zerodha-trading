@@ -14,7 +14,7 @@ type Feed struct {
 func NewFeed(instruments []uint32) *Feed {
 	f := Feed{}
 	f.data = make(map[uint32]*Bars)
-	f.OnBar = make(map[uint32]chan *Bar)
+	f.OnBar = make(map[uint32]chan *Bar, 5)
 
 	for _, inst := range instruments {
 		f.data[inst] = &Bars{Instrument: inst}
@@ -40,6 +40,7 @@ func (f *Feed) OnTick(tick kiteticker.Tick) {
 	f.data[tick.InstrumentToken].AddBar(&bar)
 	select {
 	case f.OnBar[tick.InstrumentToken] <- &bar:
+		log.Printf("Received: %v", tick.InstrumentToken)
 	default:
 		log.Printf("Tick Dropped: %v", tick.InstrumentToken)
 	}

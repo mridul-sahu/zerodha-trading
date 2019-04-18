@@ -1,9 +1,5 @@
 package trader
 
-import (
-	"log"
-)
-
 type Signal int
 
 const (
@@ -14,17 +10,9 @@ const (
 	HOLD
 )
 
-type Strategy struct {
-	bars *Bars
-}
+type StrategyBuilder func(*Bars) Strategy
 
-func NewStrategy(bars *Bars) *Strategy {
-	return &Strategy{
-		bars: bars,
-	}
-}
-
-func (s *Strategy) OnBar(b *Bar) Signal {
-	log.Println(s.bars.Instrument, s.bars.Len())
-	return HOLD
+type Strategy interface {
+	OnBar(b *Bar) Signal
+	End()
 }

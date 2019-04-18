@@ -2,4 +2,6 @@ data
 store
 .config
 .DS_Store
+.vscode
 *Orders.json
+run_data
