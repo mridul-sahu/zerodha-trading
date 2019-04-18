@@ -1,13 +1,11 @@
-package technical
+package trader
 
 import (
 	"math"
-
-	trader "github.com/mridul-sahu/zerodha-trading"
 )
 
 type TR struct {
-	bars        *trader.Bars
+	bars        *Bars
 	Data        []float64
 	processFrom int
 }

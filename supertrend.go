@@ -1,9 +1,7 @@
-package technical
-
-import trader "github.com/mridul-sahu/zerodha-trading"
+package trader
 
 type SuperTrend struct {
-	bars       *trader.Bars
+	bars       *Bars
 	atr        *ATR
 	multiplier float64
 

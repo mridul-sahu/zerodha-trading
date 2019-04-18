@@ -1,4 +1,4 @@
-package technical
+package trader
 
 type ATR struct {
 	tr          *TR

@@ -7,13 +7,11 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/mridul-sahu/zerodha-trading/technical"
 )
 
 type SuperTrendStrategy struct {
 	bars *Bars
-	st   *technical.SuperTrend
+	st   *SuperTrend
 
 	startFrom time.Time
 }
