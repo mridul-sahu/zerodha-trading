@@ -12,9 +12,8 @@ import (
 	"strconv"
 	"time"
 
-	trader "github.com/mridul-sahu/zerodha-trading"
-
 	"github.com/gocarina/gocsv"
+	trader "github.com/mridul-sahu/zerodha-trading"
 	kt "github.com/zerodhatech/gokiteconnect"
 	ktick "github.com/zerodhatech/gokiteconnect/ticker"
 )
