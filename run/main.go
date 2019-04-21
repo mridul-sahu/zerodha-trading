@@ -66,7 +66,7 @@ func mockRun(root string) {
 	feed := trader.NewFeed(ids)
 	broker := trader.NewPaperBroker(10000)
 
-	trader := trader.NewPaperTrader(instToProcess, broker, feed, trader.NewEMAStrategy)
+	trader := trader.NewPaperTrader(instToProcess, broker, feed, trader.NewSMAStrategy)
 	trader.StartTrading()
 
 	for _, t := range ticks {

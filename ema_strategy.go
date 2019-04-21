@@ -19,7 +19,7 @@ type EMAStrategy struct {
 func NewEMAStrategy(bars *Bars) Strategy {
 	return &EMAStrategy{
 		bars: bars,
-		ema:  NewEMA(10, bars.GetCloseSeries()),
+		ema:  NewEMA(100, bars.GetCloseSeries()),
 	}
 }
 

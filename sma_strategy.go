@@ -19,7 +19,7 @@ type SMAStrategy struct {
 func NewSMAStrategy(bars *Bars) Strategy {
 	return &SMAStrategy{
 		bars: bars,
-		sma:  NewSMA(10, bars.GetCloseSeries()),
+		sma:  NewSMA(100, bars.GetCloseSeries()),
 	}
 }
 
