@@ -3,5 +3,5 @@ store
 .config
 .DS_Store
 .vscode
-*Orders.json
+*.json
 run_data

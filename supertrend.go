@@ -1,47 +1,48 @@
 package trader
 
 type SuperTrend struct {
-	bars       *Bars
+	high       *[]float64
+	low        *[]float64
+	close      *[]float64
 	atr        *ATR
 	multiplier float64
 
 	fuBand []float64
 	flBand []float64
-	Data   []float64
+	Data   *[]float64
 
 	processFrom int
 }
 
 func NewSuperTrend(bars *Bars, window int, multiplier float64) *SuperTrend {
 	return &SuperTrend{
-		bars:       bars,
+		high:       bars.GetHighSeries(),
+		low:        bars.GetLowSeries(),
+		close:      bars.GetCloseSeries(),
 		atr:        NewATR(bars, window),
 		multiplier: multiplier,
 		fuBand:     []float64{0},
 		flBand:     []float64{0},
+		Data:       &[]float64{},
 	}
 }
 
 func (st *SuperTrend) Update() {
 	st.atr.Update()
-	high := st.bars.GetHighSeries()
-	low := st.bars.GetCloseSeries()
-	close := st.bars.GetCloseSeries()
-
-	atrData := st.atr.Data
+	atrData := *st.atr.Data
 	till := len(atrData)
 	if till <= st.processFrom {
 		return
 	}
 	for i := st.processFrom; i < till; i++ {
-		h := high[len(high)-(till-i)]
-		l := low[len(low)-(till-i)]
+		h := (*st.high)[len(*st.high)-(till-i)]
+		l := (*st.low)[len(*st.low)-(till-i)]
 		atr := atrData[i]
 		ub := (h+l)/2 + (st.multiplier * atr)
 		lb := (h+l)/2 - (st.multiplier * atr)
 
 		pfub := st.fuBand[len(st.fuBand)-1]
-		pclose := close[len(low)-(till-i)-1]
+		pclose := (*st.close)[len(*st.low)-(till-i)-1]
 		fub := pfub
 		if ub < pfub || pclose > pfub {
 			st.fuBand = append(st.fuBand, ub)
@@ -59,10 +60,10 @@ func (st *SuperTrend) Update() {
 			st.flBand = append(st.flBand, pflb)
 		}
 
-		if close[len(low)-(till-i)] <= fub {
-			st.Data = append(st.Data, fub)
+		if (*st.close)[len(*st.low)-(till-i)] <= fub {
+			*st.Data = append(*st.Data, fub)
 		} else {
-			st.Data = append(st.Data, flb)
+			*st.Data = append(*st.Data, flb)
 		}
 	}
 	st.processFrom = till

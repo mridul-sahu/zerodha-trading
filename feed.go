@@ -14,10 +14,10 @@ type Feed struct {
 func NewFeed(instruments []uint32) *Feed {
 	f := Feed{}
 	f.data = make(map[uint32]*Bars)
-	f.OnBar = make(map[uint32]chan *Bar, 5)
+	f.OnBar = make(map[uint32]chan *Bar, 10)
 
 	for _, inst := range instruments {
-		f.data[inst] = &Bars{Instrument: inst}
+		f.data[inst] = NewBars(inst)
 		f.OnBar[inst] = make(chan *Bar)
 	}
 

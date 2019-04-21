@@ -66,11 +66,11 @@ func mockRun(root string) {
 	feed := trader.NewFeed(ids)
 	broker := trader.NewPaperBroker(10000)
 
-	trader := trader.NewPaperTrader(instToProcess, broker, feed, trader.NewSuperTrendStrategy)
+	trader := trader.NewPaperTrader(instToProcess, broker, feed, trader.NewEMAStrategy)
 	trader.StartTrading()
 
 	for _, t := range ticks {
-		<-time.After(time.Millisecond * 10)
+		<-time.After(time.Nanosecond * 90000)
 		feed.OnTick(t)
 	}
 	trader.End()

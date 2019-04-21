@@ -25,7 +25,7 @@ func NewSuperTrendStrategy(bars *Bars) Strategy {
 
 func (s *SuperTrendStrategy) OnBar(b *Bar) Signal {
 	s.st.Update()
-	if s.startFrom.IsZero() && len(s.st.Data) > 0 {
+	if s.startFrom.IsZero() && len(*s.st.Data) > 0 {
 		log.Println("Here: ", b.Datetime)
 		s.startFrom = b.Datetime
 	}
